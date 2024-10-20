@@ -4,17 +4,28 @@ use Illuminate\Support\Facades\DB;
 use Mike42\Escpos\PrintConnectors\NetworkPrintConnector;
 use Mike42\Escpos\Printer;
 
+// function mealType2(){
+//     $now_time = date('H:i:s');
+//     $snacks = DB::connection('oracle')->table('meal_time_all')->where([['meal_type','SNACKS']])->first();
+//     $lunch = DB::connection('oracle')->table('meal_time_all')->where([['meal_type','LUNCH']])->first();
+//     $meal_type = 'SNACKS';
+//     if($now_time>=date('H:i:s',strtotime($snacks->time_start)) && $now_time<=date('H:i:s',strtotime($snacks->time_end))){
+//         $meal_type = 'SNACKS';
+//     }elseif($now_time>=date('H:i:s',strtotime($lunch->time_start)) && $now_time<=date('H:i:s',strtotime($lunch->time_end))){
+//         $meal_type = 'LUNCH';
+//     }else{
+//         $meal_type = "NO MEAL TIME";
+//     }
+//     return $meal_type;
+// }
 function mealType(){
     $now_time = date('H:i:s');
-    $snacks = DB::connection('oracle')->table('meal_time_all')->where([['meal_type','SNACKS']])->first();
-    $lunch = DB::connection('oracle')->table('meal_time_all')->where([['meal_type','LUNCH']])->first();
-    $meal_type = 'SNACKS';
-    if($now_time>=date('H:i:s',strtotime($snacks->time_start)) && $now_time<=date('H:i:s',strtotime($snacks->time_end))){
-        $meal_type = 'SNACKS';
-    }elseif($now_time>=date('H:i:s',strtotime($lunch->time_start)) && $now_time<=date('H:i:s',strtotime($lunch->time_end))){
-        $meal_type = 'LUNCH';
-    }else{
-        $meal_type = "NO MEAL TIME";
+    $meal_times = DB::connection('oracle')->table('meal_time_all')->where([['valid','YES']])->get();
+    $meal_type = 'NO MEAL TIME';
+    foreach($meal_times as $meal_time){
+        if($now_time>=date('H:i:s',strtotime($meal_time->time_start)) && $now_time<=date('H:i:s',strtotime($meal_time->time_end))){
+            $meal_type = $meal_time->meal_type;
+        }
     }
     return $meal_type;
 }
